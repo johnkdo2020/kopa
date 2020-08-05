@@ -1,6 +1,9 @@
 from django.db import models
 import re
 
+from imagekit.models import ProcessedImageField
+from imagekit.processors import Thumbnail
+
 from members.models import User
 
 
@@ -120,6 +123,12 @@ class KPopContent(models.Model):
     place = models.ForeignKey('Place', related_name='kpopcategories', on_delete=models.CASCADE)
     content_type = models.CharField('타입', max_length=2, choices=CHOICES_TYPE, default=TYPE_KOREA_CULTURE)
     title = models.CharField('컨텐츠 제목', max_length=100)
+    photo_thumbnail = ProcessedImageField(
+        upload_to='content/thumbnail',
+        processors=[Thumbnail(100, 100)],
+        format='JPEG',
+        options={'quality': 60}
+    )
     celebrity = models.ForeignKey(Celebrity, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
