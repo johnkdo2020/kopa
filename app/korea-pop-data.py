@@ -1,4 +1,5 @@
 import django
+
 django.setup()
 
 from selenium import webdriver
@@ -14,9 +15,10 @@ from urllib.parse import unquote
 
 from tours.models import *
 
-
-celeb_list = ['강다니엘', '세븐틴', '엑소', '몬스타엑스', '방탄소년단','아미','오마이걸', '규현', '아이즈원', '뉴이스트', 'TXT', '갓세븐', 'NCT', 'BTS', '블랙핑크', '위너', '유노윤호', '산다라박', '이하이', '이수현','워너원','동할배', '빅뱅', '소년24']
+celeb_list = ['강다니엘', '세븐틴', '엑소', '몬스타엑스', '방탄소년단', '아미', '오마이걸', '규현', '아이즈원', '뉴이스트', 'TXT', '갓세븐', 'NCT', 'BTS',
+              '블랙핑크', '위너', '유노윤호', '산다라박', '이하이', '이수현', '워너원', '동할배', '빅뱅', '소년24']
 profession = 'SINGER'
+
 
 def kpop_crawler_url(kpop_url_list=dict()):
     options = webdriver.ChromeOptions()
@@ -62,6 +64,7 @@ def kpop_crawler_url(kpop_url_list=dict()):
 
 
 def korea_pop_detail_page(url, thumb):
+    global address, description
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
     options.add_argument('window-size=1920x1080')
@@ -181,13 +184,14 @@ def korea_pop_detail_page(url, thumb):
                 place=place,
                 content_type='mu',
                 title=category_title,
+                photo_thumbnail=thumb,
             )
-            
+
             print('kpopcontent:::::::::::::::::::: ', kpopcontent)
             print('=========================================================')
             tag1, _ = Tag.objects.get_or_create(name=spot_name)
             tag2, _ = Tag.objects.get_or_create(name=profession)
-            
+
             place.tags.add(tag1, tag2)
             for cele_name in celeb_list:
                 if cele_name in category_title:
@@ -204,7 +208,7 @@ kpop_url_list = kpop_crawler_url()
 with open('./k_pop_url_page_fron_1_to_6_0801.json', 'w', encoding='UTF-8') as outfile:
     json.dump(kpop_url_list, outfile, ensure_ascii=False)
 
-# k_pop_url_page_fron_1_to_6
+# k_pop_url_page_from_1_to_6
 with open('./k_pop_url_page_fron_1_to_6_0801.json', 'r') as file:
     json_data = json.load(file)
 for title in json_data:
@@ -212,19 +216,17 @@ for title in json_data:
     thumb = json_data[title]['thumb']
     print(url)
     try:
-        data = korea_pop_detail_page(url,thumb)
+        korea_pop_detail_page(url, thumb)
 
-    except:
-        print('다른 페이지 오류를 어떻게 잡지')
-
-
+    except Exception as ex:
+        print('다른 페이지 오류를 어떻게 잡지', ex)
 
 for name in celeb_list:
     celeb, _ = Celebrity.objects.get_or_create(
-        name = name,
-        profession = profession,
+        name=name,
+        profession=profession,
     )
-    
+
     kpopcontent_list = KPopContent.objects.filter(title__contains=celeb.name)
     for content in kpopcontent_list:
         content.celebrity = celeb
