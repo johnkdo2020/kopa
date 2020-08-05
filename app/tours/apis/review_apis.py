@@ -5,7 +5,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from tours.models import ReviewComment, Place
 from tours.permissions import IsOwnerOrReadOnly
-from tours.serializers import ReviewCommentSerializer, PlaceSerializer, PlaceDetailSerializer
+from tours.serializers import ReviewCommentSerializer, PlaceSerializer
 
 
 class ReviewAPIView(ModelViewSet):

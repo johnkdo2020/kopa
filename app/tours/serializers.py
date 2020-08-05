@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
-from tours.models import ReviewComment, Place
+from tours.models import ReviewComment, Place, Tag
 
 
 class ReviewCommentSerializer(ModelSerializer):
@@ -10,8 +10,14 @@ class ReviewCommentSerializer(ModelSerializer):
         fields = ('id', 'review', 'user', 'title', 'content', 'password')
 
 
+class TagSerializer(ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ('id', 'name',)
+
+
 class PlaceSerializer(ModelSerializer):
-    # tags = serializers.StringRelatedField(many=True, source='tags.all')
+    tags = TagSerializer(many=True, source='tags.all')
 
     class Meta:
         model = Place
@@ -31,8 +37,23 @@ class PlaceSerializer(ModelSerializer):
 
 
 class PlaceDetailSerializer(ModelSerializer):
+    tags = serializers.SerializerMethodField()
+
     class Meta:
         model = Place
         fields = (
-            '__all__',
+            'id',
+            'name',
+            'content',
+            'address',
+            'average_score',
+            'phone_number',
+            'open_time',
+            'url',
+            'trans',
+            'release_date',
+            'tags'
         )
+
+    def get_tags(self, place):
+        return place.tags.values_list('name', flat='True')
